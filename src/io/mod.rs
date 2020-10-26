@@ -162,8 +162,8 @@
 //!
 //! # `std` re-exports
 //!
-//! Additionally, [`Error`], [`ErrorKind`], and [`Result`] are re-exported
-//! from `std::io` for ease of use.
+//! Additionally, [`Error`], [`ErrorKind`], [`Result`], and [`SeekFrom`] are
+//! re-exported from `std::io` for ease of use.
 //!
 //! [`AsyncRead`]: trait@AsyncRead
 //! [`AsyncWrite`]: trait@AsyncWrite
@@ -176,6 +176,7 @@
 //! [`ErrorKind`]: enum@ErrorKind
 //! [`Result`]: type@Result
 //! [`Read`]: std::io::Read
+//! [`SeekFrom`]: enum@SeekFrom
 //! [`Sink`]: https://docs.rs/futures/0.3/futures/sink/trait.Sink.html
 //! [`Stream`]: crate::stream::Stream
 //! [`Write`]: std::io::Write
@@ -187,7 +188,6 @@ mod async_buf_read;
 pub use self::async_buf_read::AsyncBufRead;
 
 mod async_read;
-
 pub use self::async_read::AsyncRead;
 
 mod async_seek;
@@ -196,17 +196,27 @@ pub use self::async_seek::AsyncSeek;
 mod async_write;
 pub use self::async_write::AsyncWrite;
 
+mod read_buf;
+pub use self::read_buf::ReadBuf;
+
+// Re-export some types from `std::io` so that users don't have to deal
+// with conflicts when `use`ing `tokio::io` and `std::io`.
+#[doc(no_inline)]
+pub use std::io::{Error, ErrorKind, Result, SeekFrom};
+
 cfg_io_driver! {
     pub(crate) mod driver;
 
     mod poll_evented;
-    pub use poll_evented::PollEvented;
+    #[cfg(not(loom))]
+    pub(crate) use poll_evented::PollEvented;
 
     mod registration;
-    pub use registration::Registration;
 }
 
 cfg_io_std! {
+    mod stdio_common;
+
     mod stderr;
     pub use stderr::{stderr, Stderr};
 
@@ -222,21 +232,11 @@ cfg_io_util! {
     pub use split::{split, ReadHalf, WriteHalf};
 
     pub(crate) mod seek;
-    pub use self::seek::Seek;
-
     pub(crate) mod util;
     pub use util::{
-        copy, empty, repeat, sink, AsyncBufReadExt, AsyncReadExt, AsyncSeekExt, AsyncWriteExt,
-        BufReader, BufStream, BufWriter, Copy, Empty, Lines, Repeat, Sink, Split, Take,
+        copy, copy_buf, duplex, empty, repeat, sink, AsyncBufReadExt, AsyncReadExt, AsyncSeekExt, AsyncWriteExt,
+        BufReader, BufStream, BufWriter, DuplexStream, Empty, Lines, Repeat, Sink, Split, Take,
     };
-
-    cfg_stream! {
-        pub use util::{stream_reader, StreamReader};
-    }
-
-    // Re-export io::Error so that users don't have to deal with conflicts when
-    // `use`ing `tokio::io` and `std::io`.
-    pub use std::io::{Error, ErrorKind, Result};
 }
 
 cfg_not_io_util! {
@@ -249,7 +249,7 @@ cfg_io_blocking! {
     /// Types in this module can be mocked out in tests.
     mod sys {
         // TODO: don't rename
-        pub(crate) use crate::runtime::spawn_blocking as run;
-        pub(crate) use crate::task::JoinHandle as Blocking;
+        pub(crate) use crate::blocking::spawn_blocking as run;
+        pub(crate) use crate::blocking::JoinHandle as Blocking;
     }
 }
