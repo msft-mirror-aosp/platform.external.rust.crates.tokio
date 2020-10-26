@@ -1,7 +1,7 @@
 use super::batch_semaphore as ll; // low level implementation
 use std::sync::Arc;
 
-/// Counting semaphore performing asynchronous permit aquisition.
+/// Counting semaphore performing asynchronous permit acquisition.
 ///
 /// A semaphore maintains a set of permits. Permits are used to synchronize
 /// access to a shared resource. A semaphore differs from a mutex in that it
@@ -74,6 +74,15 @@ impl Semaphore {
         }
     }
 
+    /// Creates a new semaphore with the initial number of permits.
+    #[cfg(all(feature = "parking_lot", not(all(loom, test))))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "parking_lot")))]
+    pub const fn const_new(permits: usize) -> Self {
+        Self {
+            ll_sem: ll::Semaphore::const_new(permits),
+        }
+    }
+
     /// Returns the current number of available permits.
     pub fn available_permits(&self) -> usize {
         self.ll_sem.available_permits()
@@ -114,7 +123,7 @@ impl Semaphore {
     pub async fn acquire_owned(self: Arc<Self>) -> OwnedSemaphorePermit {
         self.ll_sem.acquire(1).await.unwrap();
         OwnedSemaphorePermit {
-            sem: self.clone(),
+            sem: self,
             permits: 1,
         }
     }
@@ -127,7 +136,7 @@ impl Semaphore {
     pub fn try_acquire_owned(self: Arc<Self>) -> Result<OwnedSemaphorePermit, TryAcquireError> {
         match self.ll_sem.try_acquire(1) {
             Ok(_) => Ok(OwnedSemaphorePermit {
-                sem: self.clone(),
+                sem: self,
                 permits: 1,
             }),
             Err(_) => Err(TryAcquireError(())),

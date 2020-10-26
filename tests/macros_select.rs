@@ -152,7 +152,7 @@ async fn select_streams() {
         }
     }
 
-    msgs.sort();
+    msgs.sort_unstable();
     assert_eq!(&msgs[..], &[1, 2, 3]);
 }
 
@@ -359,10 +359,10 @@ async fn join_with_select() {
 async fn use_future_in_if_condition() {
     use tokio::time::{self, Duration};
 
-    let mut delay = time::delay_for(Duration::from_millis(50));
+    let mut sleep = time::sleep(Duration::from_millis(50));
 
     tokio::select! {
-        _ = &mut delay, if !delay.is_elapsed() => {
+        _ = &mut sleep, if !sleep.is_elapsed() => {
         }
         _ = async { 1 } => {
         }
@@ -440,9 +440,42 @@ async fn many_branches() {
     assert_eq!(1, num);
 }
 
+#[tokio::test]
+async fn never_branch_no_warnings() {
+    let t = tokio::select! {
+        _ = async_never() => 0,
+        one_async_ready = one() => one_async_ready,
+    };
+    assert_eq!(t, 1);
+}
+
 async fn one() -> usize {
     1
 }
 
 async fn require_mutable(_: &mut i32) {}
 async fn async_noop() {}
+
+async fn async_never() -> ! {
+    use tokio::time::Duration;
+    loop {
+        tokio::time::sleep(Duration::from_millis(10)).await;
+    }
+}
+
+// From https://github.com/tokio-rs/tokio/issues/2857
+#[tokio::test]
+async fn mut_on_left_hand_side() {
+    let v = async move {
+        let ok = async { 1 };
+        tokio::pin!(ok);
+        tokio::select! {
+            mut a = &mut ok => {
+                a += 1;
+                a
+            }
+        }
+    }
+    .await;
+    assert_eq!(v, 2);
+}

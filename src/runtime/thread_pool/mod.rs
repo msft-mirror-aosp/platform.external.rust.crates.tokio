@@ -9,9 +9,7 @@ use self::idle::Idle;
 mod worker;
 pub(crate) use worker::Launch;
 
-cfg_blocking! {
-    pub(crate) use worker::block_in_place;
-}
+pub(crate) use worker::block_in_place;
 
 use crate::loom::sync::Arc;
 use crate::runtime::task::{self, JoinHandle};
@@ -91,7 +89,7 @@ impl fmt::Debug for ThreadPool {
 
 impl Drop for ThreadPool {
     fn drop(&mut self) {
-        self.spawner.shared.close();
+        self.spawner.shutdown();
     }
 }
 
@@ -107,6 +105,10 @@ impl Spawner {
         let (task, handle) = task::joinable(future);
         self.shared.schedule(task, false);
         handle
+    }
+
+    pub(crate) fn shutdown(&mut self) {
+        self.shared.close();
     }
 }
 
