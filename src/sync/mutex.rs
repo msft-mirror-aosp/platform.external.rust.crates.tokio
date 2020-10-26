@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "sync"), allow(unreachable_pub, dead_code))]
+
 use crate::sync::batch_semaphore as semaphore;
 
 use std::cell::UnsafeCell;
@@ -115,7 +117,6 @@ use std::sync::Arc;
 /// [`std::sync::Mutex`]: struct@std::sync::Mutex
 /// [`Send`]: trait@std::marker::Send
 /// [`lock`]: method@Mutex::lock
-#[derive(Debug)]
 pub struct Mutex<T: ?Sized> {
     s: semaphore::Semaphore,
     c: UnsafeCell<T>,
@@ -220,6 +221,27 @@ impl<T: ?Sized> Mutex<T> {
         }
     }
 
+    /// Creates a new lock in an unlocked state ready for use.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tokio::sync::Mutex;
+    ///
+    /// static LOCK: Mutex<i32> = Mutex::const_new(5);
+    /// ```
+    #[cfg(all(feature = "parking_lot", not(all(loom, test)),))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "parking_lot")))]
+    pub const fn const_new(t: T) -> Self
+    where
+        T: Sized,
+    {
+        Self {
+            c: UnsafeCell::new(t),
+            s: semaphore::Semaphore::const_new(1),
+        }
+    }
+
     /// Locks this mutex, causing the current task
     /// to yield until the lock has been acquired.
     /// When the lock has been acquired, function returns a [`MutexGuard`].
@@ -305,6 +327,30 @@ impl<T: ?Sized> Mutex<T> {
         }
     }
 
+    /// Returns a mutable reference to the underlying data.
+    ///
+    /// Since this call borrows the `Mutex` mutably, no actual locking needs to
+    /// take place -- the mutable borrow statically guarantees no locks exist.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tokio::sync::Mutex;
+    ///
+    /// fn main() {
+    ///     let mut mutex = Mutex::new(1);
+    ///
+    ///     let n = mutex.get_mut();
+    ///     *n = 2;
+    /// }
+    /// ```
+    pub fn get_mut(&mut self) -> &mut T {
+        unsafe {
+            // Safety: This is https://github.com/rust-lang/rust/pull/76936
+            &mut *self.c.get()
+        }
+    }
+
     /// Attempts to acquire the lock, and returns [`TryLockError`] if the lock
     /// is currently held somewhere else.
     ///
@@ -370,6 +416,20 @@ where
 {
     fn default() -> Self {
         Self::new(T::default())
+    }
+}
+
+impl<T> std::fmt::Debug for Mutex<T>
+where
+    T: std::fmt::Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let mut d = f.debug_struct("Mutex");
+        match self.try_lock() {
+            Ok(inner) => d.field("data", &*inner),
+            Err(_) => d.field("data", &format_args!("<locked>")),
+        };
+        d.finish()
     }
 }
 
