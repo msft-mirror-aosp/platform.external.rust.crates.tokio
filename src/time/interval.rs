@@ -1,5 +1,5 @@
 use crate::future::poll_fn;
-use crate::time::{delay_until, Delay, Duration, Instant};
+use crate::time::{sleep_until, Duration, Instant, Sleep};
 
 use std::future::Future;
 use std::pin::Pin;
@@ -36,12 +36,12 @@ use std::task::{Context, Poll};
 ///
 /// A simple example using `interval` to execute a task every two seconds.
 ///
-/// The difference between `interval` and [`delay_for`] is that an `interval`
+/// The difference between `interval` and [`sleep`] is that an `interval`
 /// measures the time since the last tick, which means that `.tick().await`
 /// may wait for a shorter time than the duration specified for the interval
 /// if some time has passed between calls to `.tick().await`.
 ///
-/// If the tick in the example below was replaced with [`delay_for`], the task
+/// If the tick in the example below was replaced with [`sleep`], the task
 /// would only be executed once every three seconds, and not every two
 /// seconds.
 ///
@@ -50,7 +50,7 @@ use std::task::{Context, Poll};
 ///
 /// async fn task_that_takes_a_second() {
 ///     println!("hello");
-///     time::delay_for(time::Duration::from_secs(1)).await
+///     time::sleep(time::Duration::from_secs(1)).await
 /// }
 ///
 /// #[tokio::main]
@@ -63,7 +63,7 @@ use std::task::{Context, Poll};
 /// }
 /// ```
 ///
-/// [`delay_for`]: crate::time::delay_for()
+/// [`sleep`]: crate::time::sleep()
 pub fn interval(period: Duration) -> Interval {
     assert!(period > Duration::new(0, 0), "`period` must be non-zero.");
 
@@ -71,7 +71,7 @@ pub fn interval(period: Duration) -> Interval {
 }
 
 /// Creates new `Interval` that yields with interval of `period` with the
-/// first tick completing at `at`.
+/// first tick completing at `start`.
 ///
 /// An interval will tick indefinitely. At any time, the `Interval` value can be
 /// dropped. This cancels the interval.
@@ -101,24 +101,28 @@ pub fn interval_at(start: Instant, period: Duration) -> Interval {
     assert!(period > Duration::new(0, 0), "`period` must be non-zero.");
 
     Interval {
-        delay: delay_until(start),
+        delay: sleep_until(start),
         period,
     }
 }
 
 /// Stream returned by [`interval`](interval) and [`interval_at`](interval_at).
+///
+/// This type only implements the [`Stream`] trait if the "stream" feature is
+/// enabled.
+///
+/// [`Stream`]: trait@crate::stream::Stream
 #[derive(Debug)]
 pub struct Interval {
     /// Future that completes the next time the `Interval` yields a value.
-    delay: Delay,
+    delay: Sleep,
 
     /// The duration between values yielded by `Interval`.
     period: Duration,
 }
 
 impl Interval {
-    #[doc(hidden)] // TODO: document
-    pub fn poll_tick(&mut self, cx: &mut Context<'_>) -> Poll<Instant> {
+    fn poll_tick(&mut self, cx: &mut Context<'_>) -> Poll<Instant> {
         // Wait for the delay to be done
         ready!(Pin::new(&mut self.delay).poll(cx));
 
@@ -154,7 +158,6 @@ impl Interval {
     ///     // approximately 20ms have elapsed.
     /// }
     /// ```
-    #[allow(clippy::should_implement_trait)] // TODO: rename (tokio-rs/tokio#1261)
     pub async fn tick(&mut self) -> Instant {
         poll_fn(|cx| self.poll_tick(cx)).await
     }
