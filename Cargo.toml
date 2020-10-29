@@ -13,11 +13,11 @@
 [package]
 edition = "2018"
 name = "tokio"
-version = "0.3.1"
+version = "0.3.2"
 authors = ["Tokio Contributors <team@tokio.rs>"]
 description = "An event-driven, non-blocking I/O platform for writing asynchronous I/O\nbacked applications.\n"
 homepage = "https://tokio.rs"
-documentation = "https://docs.rs/tokio/0.3.1/tokio/"
+documentation = "https://docs.rs/tokio/0.3.2/tokio/"
 readme = "README.md"
 keywords = ["io", "async", "non-blocking", "futures"]
 categories = ["asynchronous", "network-programming"]
@@ -97,11 +97,11 @@ full = ["fs", "io-util", "io-std", "macros", "net", "parking_lot", "process", "r
 io-std = []
 io-util = ["memchr", "bytes"]
 macros = ["tokio-macros"]
-net = ["lazy_static", "libc", "mio/os-poll", "mio/tcp", "mio/udp", "mio/uds"]
+net = ["lazy_static", "libc", "mio/os-poll", "mio/os-util", "mio/tcp", "mio/udp", "mio/uds"]
 process = ["bytes", "lazy_static", "libc", "mio/os-poll", "mio/os-util", "mio/uds", "signal-hook-registry", "winapi/threadpoollegacyapiset"]
 rt = ["slab"]
 rt-multi-thread = ["num_cpus", "rt"]
-signal = ["lazy_static", "libc", "mio/os-poll", "mio/uds", "signal-hook-registry", "winapi/consoleapi"]
+signal = ["lazy_static", "libc", "mio/os-poll", "mio/uds", "mio/os-util", "signal-hook-registry", "winapi/consoleapi"]
 stream = ["futures-core"]
 sync = ["fnv"]
 test-util = []
@@ -116,6 +116,11 @@ optional = true
 [target."cfg(unix)".dependencies.signal-hook-registry]
 version = "1.1.1"
 optional = true
+[target."cfg(unix)".dev-dependencies.libc]
+version = "0.2.42"
+
+[target."cfg(unix)".dev-dependencies.nix]
+version = "0.18.0"
 [target."cfg(windows)".dependencies.winapi]
 version = "0.3.8"
 optional = true
