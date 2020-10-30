@@ -37,26 +37,24 @@ rust_library {
         "libpin_project_lite",
         "libslab",
     ],
-    proc_macros: [
-        "libtokio_macros",
-    ],
+    proc_macros: ["libtokio_macros"],
 }
 
 // dependent_library ["feature_list"]
 //   bytes-0.6.0 "default,std"
 //   cfg-if-0.1.10
 //   fnv-1.0.7 "default,std"
-//   futures-core-0.3.6 "alloc,default,std"
+//   futures-core-0.3.7 "alloc,default,std"
 //   lazy_static-1.4.0
-//   libc-0.2.79 "default,std"
+//   libc-0.2.80 "default,extra_traits,std"
 //   log-0.4.11
-//   memchr-2.3.3 "default,std"
-//   mio-0.7.4 "default,os-poll,tcp,udp,uds"
+//   memchr-2.3.4 "default,std"
+//   mio-0.7.4 "default,os-poll,os-util,tcp,udp,uds"
 //   num_cpus-1.13.0
 //   pin-project-lite-0.1.11
 //   proc-macro2-1.0.24 "default,proc-macro"
 //   quote-1.0.7 "default,proc-macro"
 //   slab-0.4.2
-//   syn-1.0.46 "clone-impls,default,derive,full,parsing,printing,proc-macro,quote,visit,visit-mut"
-//   tokio-macros-0.3.0
+//   syn-1.0.48 "clone-impls,default,derive,full,parsing,printing,proc-macro,quote,visit,visit-mut"
+//   tokio-macros-0.3.1
 //   unicode-xid-0.2.1 "default"
