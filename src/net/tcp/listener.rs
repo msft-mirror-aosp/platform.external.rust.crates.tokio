@@ -177,7 +177,7 @@ impl TcpListener {
     /// current task will be notified by a waker.
     ///
     /// When ready, the most recent task that called `poll_accept` is notified.
-    /// The caller is responsble to ensure that `poll_accept` is called from a
+    /// The caller is responsible to ensure that `poll_accept` is called from a
     /// single task. Failing to do this could result in tasks hanging.
     pub fn poll_accept(&self, cx: &mut Context<'_>) -> Poll<io::Result<(TcpStream, SocketAddr)>> {
         loop {
@@ -196,14 +196,14 @@ impl TcpListener {
         }
     }
 
-    /// Creates a new TCP listener from the standard library's TCP listener.
+    /// Creates new `TcpListener` from a `std::net::TcpListener`.
     ///
     /// This function is intended to be used to wrap a TCP listener from the
     /// standard library in the Tokio equivalent. The conversion assumes nothing
     /// about the underlying listener; it is left up to the user to set it in
     /// non-blocking mode.
     ///
-    /// This API is typically paired with the `net2` crate and the `TcpBuilder`
+    /// This API is typically paired with the `socket2` crate and the `Socket`
     /// type to build up and customize a listener before it's shipped off to the
     /// backing event loop. This allows configuration of options like
     /// `SO_REUSEPORT`, binding to multiple addresses, etc.
