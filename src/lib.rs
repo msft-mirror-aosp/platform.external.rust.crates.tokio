@@ -1,4 +1,4 @@
-#![doc(html_root_url = "https://docs.rs/tokio/0.3.1")]
+#![doc(html_root_url = "https://docs.rs/tokio/0.3.2")]
 #![allow(
     clippy::cognitive_complexity,
     clippy::large_enum_variant,
@@ -305,7 +305,8 @@
 //! - `rt-multi-thread`: Enables the heavier, multi-threaded, work-stealing scheduler.
 //! - `io-util`: Enables the IO based `Ext` traits.
 //! - `io-std`: Enable `Stdout`, `Stdin` and `Stderr` types.
-//! - `net`: Enables `tokio::net` types such as `TcpStream`, `UnixStream` and `UdpSocket`.
+//! - `net`: Enables `tokio::net` types such as `TcpStream`, `UnixStream` and `UdpSocket`,
+//!          as well as (on Unix-like systems) `AsyncFd`
 //! - `time`: Enables `tokio::time` types and allows the schedulers to enable
 //!           the built in timer.
 //! - `process`: Enables `tokio::process` types.
