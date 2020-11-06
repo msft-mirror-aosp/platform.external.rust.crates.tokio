@@ -8,7 +8,6 @@ rust_library {
     edition: "2018",
     features: [
         "bytes",
-        "fnv",
         "futures-core",
         "io-util",
         "lazy_static",
@@ -25,9 +24,11 @@ rust_library {
         "sync",
         "tokio-macros",
     ],
+    flags: [
+        "--cfg tokio_track_caller",
+    ],
     rustlibs: [
         "libbytes",
-        "libfnv",
         "libfutures_core",
         "liblazy_static",
         "liblibc",
@@ -41,15 +42,15 @@ rust_library {
 }
 
 // dependent_library ["feature_list"]
+//   autocfg-1.0.1
 //   bytes-0.6.0 "default,std"
 //   cfg-if-0.1.10
-//   fnv-1.0.7 "default,std"
 //   futures-core-0.3.7 "alloc,default,std"
 //   lazy_static-1.4.0
 //   libc-0.2.80 "default,extra_traits,std"
 //   log-0.4.11
 //   memchr-2.3.4 "default,std"
-//   mio-0.7.4 "default,os-poll,os-util,tcp,udp,uds"
+//   mio-0.7.5 "default,os-poll,os-util,tcp,udp,uds"
 //   num_cpus-1.13.0
 //   pin-project-lite-0.1.11
 //   proc-macro2-1.0.24 "default,proc-macro"
