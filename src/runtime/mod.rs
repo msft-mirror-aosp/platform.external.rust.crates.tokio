@@ -357,11 +357,14 @@ cfg_rt! {
         /// });
         /// # }
         /// ```
+        #[cfg_attr(tokio_track_caller, track_caller)]
         pub fn spawn<F>(&self, future: F) -> JoinHandle<F::Output>
         where
             F: Future + Send + 'static,
             F::Output: Send + 'static,
         {
+            #[cfg(feature = "tracing")]
+            let future = crate::util::trace::task(future, "task");
             match &self.kind {
                 #[cfg(feature = "rt-multi-thread")]
                 Kind::ThreadPool(exec) => exec.spawn(future),
@@ -385,9 +388,11 @@ cfg_rt! {
         ///     println!("now running on a worker thread");
         /// });
         /// # }
+        #[cfg_attr(tokio_track_caller, track_caller)]
         pub fn spawn_blocking<F, R>(&self, func: F) -> JoinHandle<R>
         where
             F: FnOnce() -> R + Send + 'static,
+            R: Send + 'static,
         {
             self.handle.spawn_blocking(func)
         }
@@ -415,7 +420,7 @@ cfg_rt! {
         ///
         /// # Panics
         ///
-        /// This function panics if the provided future panics, or if not called within an
+        /// This function panics if the provided future panics, or if called within an
         /// asynchronous execution context.
         ///
         /// # Examples
