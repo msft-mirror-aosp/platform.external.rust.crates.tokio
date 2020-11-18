@@ -45,14 +45,14 @@ rust_library {
 //   autocfg-1.0.1
 //   bytes-0.6.0 "default,std"
 //   cfg-if-0.1.10
-//   futures-core-0.3.7 "alloc,default,std"
+//   futures-core-0.3.8 "alloc,default,std"
 //   lazy_static-1.4.0
-//   libc-0.2.80 "default,extra_traits,std"
+//   libc-0.2.80 "align,default,extra_traits,std"
 //   log-0.4.11
 //   memchr-2.3.4 "default,std"
-//   mio-0.7.5 "default,os-poll,os-util,tcp,udp,uds"
+//   mio-0.7.6 "default,net,os-ext,os-poll,os-util,tcp,udp,uds"
 //   num_cpus-1.13.0
-//   pin-project-lite-0.1.11
+//   pin-project-lite-0.2.0
 //   proc-macro2-1.0.24 "default,proc-macro"
 //   quote-1.0.7 "default,proc-macro"
 //   slab-0.4.2
