@@ -56,7 +56,7 @@ fn send_sync_bound() {
 
 rt_test! {
     use tokio::net::{TcpListener, TcpStream, UdpSocket};
-    use tokio::prelude::*;
+    use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::runtime::Runtime;
     use tokio::sync::oneshot;
     use tokio::{task, time};
@@ -855,6 +855,21 @@ rt_test! {
         });
 
         Arc::try_unwrap(runtime).unwrap().shutdown_timeout(Duration::from_millis(100));
+    }
+
+    #[test]
+    fn shutdown_timeout_0() {
+        let runtime = rt();
+
+        runtime.block_on(async move {
+            task::spawn_blocking(move || {
+                thread::sleep(Duration::from_secs(10_000));
+            });
+        });
+
+        let now = Instant::now();
+        Arc::try_unwrap(runtime).unwrap().shutdown_timeout(Duration::from_nanos(0));
+        assert!(now.elapsed().as_secs() < 1);
     }
 
     #[test]
