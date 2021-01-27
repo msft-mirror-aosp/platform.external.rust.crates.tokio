@@ -10,10 +10,11 @@ cfg_io_driver! {
     feature = "rt",
     feature = "sync",
     feature = "signal",
+    feature = "time",
 ))]
 pub(crate) mod linked_list;
 
-#[cfg(any(feature = "rt-multi-thread", feature = "macros", feature = "stream"))]
+#[cfg(any(feature = "rt-multi-thread", feature = "macros"))]
 mod rand;
 
 cfg_rt! {
@@ -31,6 +32,6 @@ cfg_rt_multi_thread! {
 
 pub(crate) mod trace;
 
-#[cfg(any(feature = "macros", feature = "stream"))]
+#[cfg(any(feature = "macros"))]
 #[cfg_attr(not(feature = "macros"), allow(unreachable_pub))]
 pub use rand::thread_rng_n;
