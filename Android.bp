@@ -56,15 +56,15 @@ rust_library {
 // dependent_library ["feature_list"]
 //   autocfg-1.0.1
 //   bytes-1.0.1 "default,std"
-//   cfg-if-0.1.10
-//   libc-0.2.82 "align,default,extra_traits,std"
-//   log-0.4.13
+//   cfg-if-1.0.0
+//   libc-0.2.86 "align,default,extra_traits,std"
+//   log-0.4.14
 //   memchr-2.3.4 "default,std"
 //   mio-0.7.7 "default,net,os-ext,os-poll,os-util,tcp,udp,uds"
 //   num_cpus-1.13.0
 //   pin-project-lite-0.2.4
 //   proc-macro2-1.0.24 "default,proc-macro"
 //   quote-1.0.8 "default,proc-macro"
-//   syn-1.0.58 "clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,quote,visit,visit-mut"
-//   tokio-macros-1.0.0
+//   syn-1.0.60 "clone-impls,default,derive,extra-traits,full,parsing,printing,proc-macro,quote,visit-mut"
+//   tokio-macros-1.1.0
 //   unicode-xid-0.2.1 "default"
