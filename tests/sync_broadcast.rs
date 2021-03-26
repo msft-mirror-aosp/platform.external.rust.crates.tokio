@@ -286,6 +286,7 @@ fn capacity_too_big() {
 }
 
 #[test]
+#[cfg(not(target_os = "android"))]
 fn panic_in_clone() {
     use std::panic::{self, AssertUnwindSafe};
 
