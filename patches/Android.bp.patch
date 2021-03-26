@@ -1,0 +1,159 @@
+diff --git a/Android.bp b/Android.bp
+index 1b9828d..6ae37fc 100644
+--- a/Android.bp
++++ b/Android.bp
+@@ -75,28 +75,13 @@ rust_defaults {
+         "libnix",
+         "libnum_cpus",
+         "libpin_project_lite",
+-        "libproptest",
+         "librand",
+-        "libtempfile",
+         "libtokio_stream",
+         "libtokio_test",
+     ],
+     proc_macros: ["libtokio_macros"],
+ }
+ 
+-rust_test_host {
+-    name: "tokio_host_test_src_lib",
+-    defaults: ["tokio_defaults"],
+-    test_options: {
+-        unit_test: true,
+-    },
+-}
+-
+-rust_test {
+-    name: "tokio_device_test_src_lib",
+-    defaults: ["tokio_defaults"],
+-}
+-
+ rust_defaults {
+     name: "tokio_defaults_tokio",
+     crate_name: "tokio",
+@@ -132,9 +117,7 @@ rust_defaults {
+         "libnix",
+         "libnum_cpus",
+         "libpin_project_lite",
+-        "libproptest",
+         "librand",
+-        "libtempfile",
+         "libtokio",
+         "libtokio_stream",
+         "libtokio_test",
+@@ -142,21 +125,6 @@ rust_defaults {
+     proc_macros: ["libtokio_macros"],
+ }
+ 
+-rust_test_host {
+-    name: "tokio_host_test_tests__require_full",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/_require_full.rs"],
+-    test_options: {
+-        unit_test: true,
+-    },
+-}
+-
+-rust_test {
+-    name: "tokio_device_test_tests__require_full",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/_require_full.rs"],
+-}
+-
+ rust_test_host {
+     name: "tokio_host_test_tests_async_send_sync",
+     defaults: ["tokio_defaults_tokio"],
+@@ -1357,81 +1325,6 @@ rust_test {
+     srcs: ["tests/test_clock.rs"],
+ }
+ 
+-rust_test_host {
+-    name: "tokio_host_test_tests_time_interval",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_interval.rs"],
+-    test_options: {
+-        unit_test: true,
+-    },
+-}
+-
+-rust_test {
+-    name: "tokio_device_test_tests_time_interval",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_interval.rs"],
+-}
+-
+-rust_test_host {
+-    name: "tokio_host_test_tests_time_pause",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_pause.rs"],
+-    test_options: {
+-        unit_test: true,
+-    },
+-}
+-
+-rust_test {
+-    name: "tokio_device_test_tests_time_pause",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_pause.rs"],
+-}
+-
+-rust_test_host {
+-    name: "tokio_host_test_tests_time_rt",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_rt.rs"],
+-    test_options: {
+-        unit_test: true,
+-    },
+-}
+-
+-rust_test {
+-    name: "tokio_device_test_tests_time_rt",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_rt.rs"],
+-}
+-
+-rust_test_host {
+-    name: "tokio_host_test_tests_time_sleep",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_sleep.rs"],
+-    test_options: {
+-        unit_test: true,
+-    },
+-}
+-
+-rust_test {
+-    name: "tokio_device_test_tests_time_sleep",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_sleep.rs"],
+-}
+-
+-rust_test_host {
+-    name: "tokio_host_test_tests_time_timeout",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_timeout.rs"],
+-    test_options: {
+-        unit_test: true,
+-    },
+-}
+-
+-rust_test {
+-    name: "tokio_device_test_tests_time_timeout",
+-    defaults: ["tokio_defaults_tokio"],
+-    srcs: ["tests/time_timeout.rs"],
+-}
+-
+ rust_test_host {
+     name: "tokio_host_test_tests_udp",
+     defaults: ["tokio_defaults_tokio"],
+@@ -1507,11 +1400,3 @@ rust_test {
+     srcs: ["tests/uds_stream.rs"],
+ }
+ 
+-Errors in cargo.out:
+-error: run main Tokio tests with `--features full`
+-error: aborting due to previous error
+-error: could not compile `tokio`
+-error[E0599]: no method named `pause` found for struct `clock::Clock` in the current scope
+-error[E0599]: no method named `pause` found for struct `clock::Clock` in the current scope
+-error: aborting due to 2 previous errors
+-error: build failed
