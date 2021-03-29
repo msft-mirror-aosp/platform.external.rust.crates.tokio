@@ -3,6 +3,23 @@
 
 
 
+package {
+    default_applicable_licenses: ["external_rust_crates_tokio_license"],
+}
+
+// Added automatically by a large-scale-change
+// See: http://go/android-license-faq
+license {
+    name: "external_rust_crates_tokio_license",
+    visibility: [":__subpackages__"],
+    license_kinds: [
+        "SPDX-license-identifier-MIT",
+    ],
+    license_text: [
+        "LICENSE",
+    ],
+}
+
 rust_library {
     name: "libtokio",
     host_supported: true,
@@ -1399,4 +1416,3 @@ rust_test {
     defaults: ["tokio_defaults_tokio"],
     srcs: ["tests/uds_stream.rs"],
 }
-
