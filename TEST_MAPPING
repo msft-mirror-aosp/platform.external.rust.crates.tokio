@@ -23,12 +23,6 @@
       "name": "tokio_device_test_tests_buffered"
     },
     {
-      "name": "tokio_device_test_tests_fs_file"
-    },
-    {
-      "name": "tokio_device_test_tests_fs_link"
-    },
-    {
       "name": "tokio_device_test_tests_io_async_read"
     },
     {
@@ -71,40 +65,10 @@
       "name": "tokio_device_test_tests_no_rt"
     },
     {
-      "name": "tokio_device_test_tests_process_issue_2174"
-    },
-    {
-      "name": "tokio_device_test_tests_process_issue_42"
-    },
-    {
-      "name": "tokio_device_test_tests_process_smoke"
-    },
-    {
       "name": "tokio_device_test_tests_rt_basic"
     },
     {
       "name": "tokio_device_test_tests_rt_threaded"
-    },
-    {
-      "name": "tokio_device_test_tests_signal_ctrl_c"
-    },
-    {
-      "name": "tokio_device_test_tests_signal_drop_rt"
-    },
-    {
-      "name": "tokio_device_test_tests_signal_drop_signal"
-    },
-    {
-      "name": "tokio_device_test_tests_signal_multi_rt"
-    },
-    {
-      "name": "tokio_device_test_tests_signal_no_rt"
-    },
-    {
-      "name": "tokio_device_test_tests_signal_notify_both"
-    },
-    {
-      "name": "tokio_device_test_tests_signal_twice"
     },
     {
       "name": "tokio_device_test_tests_sync_barrier"
@@ -120,9 +84,6 @@
     },
     {
       "name": "tokio_device_test_tests_sync_mutex_owned"
-    },
-    {
-      "name": "tokio_device_test_tests_sync_once_cell"
     },
     {
       "name": "tokio_device_test_tests_sync_rwlock"
@@ -149,19 +110,10 @@
       "name": "tokio_device_test_tests_tcp_shutdown"
     },
     {
-      "name": "tokio_device_test_tests_time_interval"
-    },
-    {
       "name": "tokio_device_test_tests_time_rt"
     },
     {
-      "name": "tokio_device_test_tests_time_timeout"
-    },
-    {
       "name": "tokio_device_test_tests_uds_split"
-    },
-    {
-      "name": "tokio_device_test_tests_uds_stream"
     }
   ]
 }
