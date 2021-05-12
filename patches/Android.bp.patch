@@ -1,8 +1,20 @@
 diff --git a/Android.bp b/Android.bp
-index b654899..44c598d 100644
+index 6b8ca5b..222916b 100644
 --- a/Android.bp
 +++ b/Android.bp
-@@ -61,6 +61,7 @@ rust_defaults {
+@@ -50,6 +50,11 @@ rust_library {
+         "libpin_project_lite",
+     ],
+     proc_macros: ["libtokio_macros"],
++    apex_available: [
++        "//apex_available:platform",
++        "com.android.resolv",
++    ],
++    min_sdk_version: "29",
+ }
+ 
+ rust_defaults {
+@@ -61,6 +66,7 @@ rust_defaults {
      features: [
          "bytes",
          "fs",
@@ -10,7 +22,7 @@ index b654899..44c598d 100644
          "io-util",
          "libc",
          "macros",
-@@ -108,36 +109,6 @@ rust_test {
+@@ -108,36 +114,6 @@ rust_test {
      srcs: ["tests/buffered.rs"],
  }
  
@@ -47,7 +59,7 @@ index b654899..44c598d 100644
  rust_test_host {
      name: "tokio_host_test_tests_io_async_read",
      defaults: ["tokio_defaults"],
-@@ -348,51 +319,6 @@ rust_test {
+@@ -348,51 +324,6 @@ rust_test {
      srcs: ["tests/no_rt.rs"],
  }
  
@@ -99,7 +111,7 @@ index b654899..44c598d 100644
  rust_test_host {
      name: "tokio_host_test_tests_rt_basic",
      defaults: ["tokio_defaults"],
-@@ -423,111 +349,6 @@ rust_test {
+@@ -423,111 +354,6 @@ rust_test {
      srcs: ["tests/rt_threaded.rs"],
  }
  
@@ -211,7 +223,7 @@ index b654899..44c598d 100644
  rust_test_host {
      name: "tokio_host_test_tests_sync_barrier",
      defaults: ["tokio_defaults"],
-@@ -603,21 +424,6 @@ rust_test {
+@@ -603,21 +429,6 @@ rust_test {
      srcs: ["tests/sync_mutex_owned.rs"],
  }
  
@@ -233,7 +245,7 @@ index b654899..44c598d 100644
  rust_test_host {
      name: "tokio_host_test_tests_sync_rwlock",
      defaults: ["tokio_defaults"],
-@@ -738,21 +544,6 @@ rust_test {
+@@ -738,21 +549,6 @@ rust_test {
      srcs: ["tests/tcp_shutdown.rs"],
  }
  
@@ -255,7 +267,7 @@ index b654899..44c598d 100644
  rust_test_host {
      name: "tokio_host_test_tests_time_rt",
      defaults: ["tokio_defaults"],
-@@ -768,21 +559,6 @@ rust_test {
+@@ -768,21 +564,6 @@ rust_test {
      srcs: ["tests/time_rt.rs"],
  }
  
@@ -277,7 +289,7 @@ index b654899..44c598d 100644
  rust_test_host {
      name: "tokio_host_test_tests_uds_split",
      defaults: ["tokio_defaults"],
-@@ -797,18 +573,3 @@ rust_test {
+@@ -797,18 +578,3 @@ rust_test {
      defaults: ["tokio_defaults"],
      srcs: ["tests/uds_split.rs"],
  }
