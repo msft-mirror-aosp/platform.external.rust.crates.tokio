@@ -13,11 +13,11 @@
 [package]
 edition = "2018"
 name = "tokio"
-version = "1.5.0"
+version = "1.6.0"
 authors = ["Tokio Contributors <team@tokio.rs>"]
 description = "An event-driven, non-blocking I/O platform for writing asynchronous I/O\nbacked applications.\n"
 homepage = "https://tokio.rs"
-documentation = "https://docs.rs/tokio/1.5.0/tokio/"
+documentation = "https://docs.rs/tokio/1.6.0/tokio/"
 readme = "README.md"
 keywords = ["io", "async", "non-blocking", "futures"]
 categories = ["asynchronous", "network-programming"]
@@ -85,7 +85,7 @@ version = "1"
 
 [features]
 default = []
-fs = []
+fs = ["libc"]
 full = ["fs", "io-util", "io-std", "macros", "net", "parking_lot", "process", "rt", "rt-multi-thread", "signal", "sync", "time"]
 io-std = []
 io-util = ["memchr", "bytes"]
@@ -107,14 +107,14 @@ features = ["std"]
 optional = true
 default-features = false
 [target."cfg(unix)".dependencies.libc]
-version = "0.2.42"
+version = "0.2.87"
 optional = true
 
 [target."cfg(unix)".dependencies.signal-hook-registry]
 version = "1.1.1"
 optional = true
 [target."cfg(unix)".dev-dependencies.libc]
-version = "0.2.42"
+version = "0.2.87"
 
 [target."cfg(unix)".dev-dependencies.nix]
 version = "0.19.0"
