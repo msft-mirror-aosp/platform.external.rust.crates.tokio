@@ -1,0 +1,44 @@
+From ca97c485ea02d1d890cccef3c4bc2205e59d870a Mon Sep 17 00:00:00 2001
+From: Jeff Vander Stoep <jeffv@google.com>
+Date: Wed, 26 May 2021 16:20:35 +0200
+Subject: [PATCH] tcp_into_std: assign an unused port
+
+Assigning a specific port can lead to colisions and test failures.
+This results in this test failing ~0.5% of the time on Android's CI.
+
+Fixes:
+test tcp_into_std ... FAILED
+
+failures:
+
+---- tcp_into_std stdout ----
+Error: Os { code: 98, kind: AddrInUse, message: "Address already in use" }
+
+Bug: 187561179
+Test: atest tokio_host_test_tests_tcp_into_std
+Change-Id: Ifeb9adddc68fb4c03cbf6fd310731ae99f61d0d5
+---
+ tests/tcp_into_std.rs | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/tests/tcp_into_std.rs b/tests/tcp_into_std.rs
+index a46aace..4bf24c1 100644
+--- a/tests/tcp_into_std.rs
++++ b/tests/tcp_into_std.rs
+@@ -10,10 +10,11 @@ use tokio::net::TcpStream;
+ #[tokio::test]
+ async fn tcp_into_std() -> Result<()> {
+     let mut data = [0u8; 12];
+-    let listener = TcpListener::bind("127.0.0.1:34254").await?;
++    let listener = TcpListener::bind("127.0.0.1:0").await?;
++    let addr = listener.local_addr().unwrap().to_string();
+ 
+     let handle = tokio::spawn(async {
+-        let stream: TcpStream = TcpStream::connect("127.0.0.1:34254").await.unwrap();
++        let stream: TcpStream = TcpStream::connect(addr).await.unwrap();
+         stream
+     });
+ 
+-- 
+2.32.0.rc0.204.g9fa02ecfa5-goog
+
