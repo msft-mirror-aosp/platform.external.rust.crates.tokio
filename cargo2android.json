@@ -1,4 +1,5 @@
 {
+    "add-toplevel-block": "cargo2android_tests.bp",
     "apex-available": [
       "//apex_available:platform",
       "com.android.resolv"
@@ -6,6 +7,5 @@
     "min_sdk_version": "29",
     "features": "io-util,macros,rt-multi-thread,sync,net,fs,time",
     "device": true,
-    "run": true,
-    "patch": "patches/Android.bp.patch"
+    "run": true
 }
