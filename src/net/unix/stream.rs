@@ -9,7 +9,7 @@ use std::convert::TryFrom;
 use std::fmt;
 use std::io::{self, Read, Write};
 use std::net::Shutdown;
-use std::os::unix::io::{AsRawFd, RawFd};
+use std::os::unix::io::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 use std::os::unix::net;
 use std::path::Path;
 use std::pin::Pin;
@@ -271,6 +271,84 @@ impl UnixStream {
             .try_io(Interest::READABLE, || (&*self.io).read(buf))
     }
 
+    /// Try to read data from the stream into the provided buffers, returning
+    /// how many bytes were read.
+    ///
+    /// Data is copied to fill each buffer in order, with the final buffer
+    /// written to possibly being only partially filled. This method behaves
+    /// equivalently to a single call to [`try_read()`] with concatenated
+    /// buffers.
+    ///
+    /// Receives any pending data from the socket but does not wait for new data
+    /// to arrive. On success, returns the number of bytes read. Because
+    /// `try_read_vectored()` is non-blocking, the buffer does not have to be
+    /// stored by the async task and can exist entirely on the stack.
+    ///
+    /// Usually, [`readable()`] or [`ready()`] is used with this function.
+    ///
+    /// [`try_read()`]: UnixStream::try_read()
+    /// [`readable()`]: UnixStream::readable()
+    /// [`ready()`]: UnixStream::ready()
+    ///
+    /// # Return
+    ///
+    /// If data is successfully read, `Ok(n)` is returned, where `n` is the
+    /// number of bytes read. `Ok(0)` indicates the stream's read half is closed
+    /// and will no longer yield data. If the stream is not ready to read data
+    /// `Err(io::ErrorKind::WouldBlock)` is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use tokio::net::UnixStream;
+    /// use std::error::Error;
+    /// use std::io::{self, IoSliceMut};
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn Error>> {
+    ///     // Connect to a peer
+    ///     let dir = tempfile::tempdir().unwrap();
+    ///     let bind_path = dir.path().join("bind_path");
+    ///     let stream = UnixStream::connect(bind_path).await?;
+    ///
+    ///     loop {
+    ///         // Wait for the socket to be readable
+    ///         stream.readable().await?;
+    ///
+    ///         // Creating the buffer **after** the `await` prevents it from
+    ///         // being stored in the async task.
+    ///         let mut buf_a = [0; 512];
+    ///         let mut buf_b = [0; 1024];
+    ///         let mut bufs = [
+    ///             IoSliceMut::new(&mut buf_a),
+    ///             IoSliceMut::new(&mut buf_b),
+    ///         ];
+    ///
+    ///         // Try to read data, this may still fail with `WouldBlock`
+    ///         // if the readiness event is a false positive.
+    ///         match stream.try_read_vectored(&mut bufs) {
+    ///             Ok(0) => break,
+    ///             Ok(n) => {
+    ///                 println!("read {} bytes", n);
+    ///             }
+    ///             Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
+    ///                 continue;
+    ///             }
+    ///             Err(e) => {
+    ///                 return Err(e.into());
+    ///             }
+    ///         }
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn try_read_vectored(&self, bufs: &mut [io::IoSliceMut<'_>]) -> io::Result<usize> {
+        self.io
+            .registration()
+            .try_io(Interest::READABLE, || (&*self.io).read_vectored(bufs))
+    }
+
     cfg_io_util! {
         /// Try to read data from the stream into the provided buffer, advancing the
         /// buffer's internal cursor, returning how many bytes were read.
@@ -487,6 +565,68 @@ impl UnixStream {
             .try_io(Interest::WRITABLE, || (&*self.io).write(buf))
     }
 
+    /// Try to write several buffers to the stream, returning how many bytes
+    /// were written.
+    ///
+    /// Data is written from each buffer in order, with the final buffer read
+    /// from possible being only partially consumed. This method behaves
+    /// equivalently to a single call to [`try_write()`] with concatenated
+    /// buffers.
+    ///
+    /// This function is usually paired with `writable()`.
+    ///
+    /// [`try_write()`]: UnixStream::try_write()
+    ///
+    /// # Return
+    ///
+    /// If data is successfully written, `Ok(n)` is returned, where `n` is the
+    /// number of bytes written. If the stream is not ready to write data,
+    /// `Err(io::ErrorKind::WouldBlock)` is returned.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use tokio::net::UnixStream;
+    /// use std::error::Error;
+    /// use std::io;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn Error>> {
+    ///     // Connect to a peer
+    ///     let dir = tempfile::tempdir().unwrap();
+    ///     let bind_path = dir.path().join("bind_path");
+    ///     let stream = UnixStream::connect(bind_path).await?;
+    ///
+    ///     let bufs = [io::IoSlice::new(b"hello "), io::IoSlice::new(b"world")];
+    ///
+    ///     loop {
+    ///         // Wait for the socket to be writable
+    ///         stream.writable().await?;
+    ///
+    ///         // Try to write data, this may still fail with `WouldBlock`
+    ///         // if the readiness event is a false positive.
+    ///         match stream.try_write_vectored(&bufs) {
+    ///             Ok(n) => {
+    ///                 break;
+    ///             }
+    ///             Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
+    ///                 continue;
+    ///             }
+    ///             Err(e) => {
+    ///                 return Err(e.into());
+    ///             }
+    ///         }
+    ///     }
+    ///
+    ///     Ok(())
+    /// }
+    /// ```
+    pub fn try_write_vectored(&self, buf: &[io::IoSlice<'_>]) -> io::Result<usize> {
+        self.io
+            .registration()
+            .try_io(Interest::WRITABLE, || (&*self.io).write_vectored(buf))
+    }
+
     /// Creates new `UnixStream` from a `std::os::unix::net::UnixStream`.
     ///
     /// This function is intended to be used to wrap a UnixStream from the
@@ -506,6 +646,51 @@ impl UnixStream {
         let io = PollEvented::new(stream)?;
 
         Ok(UnixStream { io })
+    }
+
+    /// Turn a [`tokio::net::UnixStream`] into a [`std::os::unix::net::UnixStream`].
+    ///
+    /// The returned [`std::os::unix::net::UnixStream`] will have nonblocking
+    /// mode set as `true`.  Use [`set_nonblocking`] to change the blocking
+    /// mode if needed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::error::Error;
+    /// use std::io::Read;
+    /// use tokio::net::UnixListener;
+    /// # use tokio::net::UnixStream;
+    /// # use tokio::io::AsyncWriteExt;
+    ///
+    /// #[tokio::main]
+    /// async fn main() -> Result<(), Box<dyn Error>> {
+    ///     let dir = tempfile::tempdir().unwrap();
+    ///     let bind_path = dir.path().join("bind_path");
+    ///
+    ///     let mut data = [0u8; 12];
+    ///     let listener = UnixListener::bind(&bind_path)?;
+    /// #   let handle = tokio::spawn(async {
+    /// #       let mut stream = UnixStream::connect(bind_path).await.unwrap();
+    /// #       stream.write(b"Hello world!").await.unwrap();
+    /// #   });
+    ///     let (tokio_unix_stream, _) = listener.accept().await?;
+    ///     let mut std_unix_stream = tokio_unix_stream.into_std()?;
+    /// #   handle.await.expect("The task being joined has panicked");
+    ///     std_unix_stream.set_nonblocking(false)?;
+    ///     std_unix_stream.read_exact(&mut data)?;
+    /// #   assert_eq!(b"Hello world!", &data);
+    ///     Ok(())
+    /// }
+    /// ```
+    /// [`tokio::net::UnixStream`]: UnixStream
+    /// [`std::os::unix::net::UnixStream`]: std::os::unix::net::UnixStream
+    /// [`set_nonblocking`]: fn@std::os::unix::net::UnixStream::set_nonblocking
+    pub fn into_std(self) -> io::Result<std::os::unix::net::UnixStream> {
+        self.io
+            .into_inner()
+            .map(|io| io.into_raw_fd())
+            .map(|raw_fd| unsafe { std::os::unix::net::UnixStream::from_raw_fd(raw_fd) })
     }
 
     /// Creates an unnamed pair of connected sockets.
