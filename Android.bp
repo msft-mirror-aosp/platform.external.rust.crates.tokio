@@ -39,6 +39,7 @@ rust_library {
         "sync",
         "time",
         "tokio-macros",
+        "winapi",
     ],
     cfgs: ["tokio_track_caller"],
     rustlibs: [
