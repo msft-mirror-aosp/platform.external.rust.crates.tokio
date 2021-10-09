@@ -45,6 +45,18 @@ macro_rules! cfg_atomic_waker_impl {
     }
 }
 
+macro_rules! cfg_aio {
+    ($($item:item)*) => {
+        $(
+            #[cfg(all(any(docsrs, target_os = "freebsd"), feature = "net"))]
+            #[cfg_attr(docsrs,
+                doc(cfg(all(target_os = "freebsd", feature = "net")))
+            )]
+            $item
+        )*
+    }
+}
+
 macro_rules! cfg_fs {
     ($($item:item)*) => {
         $(
@@ -162,6 +174,25 @@ macro_rules! cfg_macros {
     }
 }
 
+macro_rules! cfg_stats {
+    ($($item:item)*) => {
+        $(
+            #[cfg(all(tokio_unstable, feature = "stats"))]
+            #[cfg_attr(docsrs, doc(cfg(feature = "stats")))]
+            $item
+        )*
+    }
+}
+
+macro_rules! cfg_not_stats {
+    ($($item:item)*) => {
+        $(
+            #[cfg(not(all(tokio_unstable, feature = "stats")))]
+            $item
+        )*
+    }
+}
+
 macro_rules! cfg_net {
     ($($item:item)*) => {
         $(
@@ -176,7 +207,7 @@ macro_rules! cfg_net_unix {
     ($($item:item)*) => {
         $(
             #[cfg(all(unix, feature = "net"))]
-            #[cfg_attr(docsrs, doc(cfg(feature = "net")))]
+            #[cfg_attr(docsrs, doc(cfg(all(unix, feature = "net"))))]
             $item
         )*
     }
