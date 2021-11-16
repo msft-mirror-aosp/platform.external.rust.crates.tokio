@@ -22,8 +22,6 @@ rust_library {
     name: "libtokio",
     host_supported: true,
     crate_name: "tokio",
-    cargo_env_compat: true,
-    cargo_pkg_version: "1.12.0",
     srcs: ["src/lib.rs"],
     edition: "2018",
     features: [
@@ -130,21 +128,6 @@ rust_test {
     name: "tokio_device_test_tests_buffered",
     defaults: ["tokio_defaults_tokio"],
     srcs: ["tests/buffered.rs"],
-}
-
-rust_test_host {
-    name: "tokio_host_test_tests_io_async_fd",
-    defaults: ["tokio_defaults_tokio"],
-    srcs: ["tests/io_async_fd.rs"],
-    test_options: {
-        unit_test: true,
-    },
-}
-
-rust_test {
-    name: "tokio_device_test_tests_io_async_fd",
-    defaults: ["tokio_defaults_tokio"],
-    srcs: ["tests/io_async_fd.rs"],
 }
 
 rust_test_host {
