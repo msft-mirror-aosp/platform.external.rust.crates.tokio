@@ -58,6 +58,7 @@ use crate::sync::notify::Notify;
 use crate::loom::sync::atomic::AtomicUsize;
 use crate::loom::sync::atomic::Ordering::Relaxed;
 use crate::loom::sync::{Arc, RwLock, RwLockReadGuard};
+use std::mem;
 use std::ops;
 
 /// Receives values from the associated [`Sender`](struct@Sender).
@@ -85,7 +86,7 @@ pub struct Sender<T> {
     shared: Arc<Shared<T>>,
 }
 
-/// Returns a reference to the inner value
+/// Returns a reference to the inner value.
 ///
 /// Outstanding borrows hold a read lock on the inner value. This means that
 /// long lived borrows could cause the produce half to block. It is recommended
@@ -97,27 +98,27 @@ pub struct Ref<'a, T> {
 
 #[derive(Debug)]
 struct Shared<T> {
-    /// The most recent value
+    /// The most recent value.
     value: RwLock<T>,
 
-    /// The current version
+    /// The current version.
     ///
     /// The lowest bit represents a "closed" state. The rest of the bits
     /// represent the current version.
     state: AtomicState,
 
-    /// Tracks the number of `Receiver` instances
+    /// Tracks the number of `Receiver` instances.
     ref_count_rx: AtomicUsize,
 
     /// Notifies waiting receivers that the value changed.
     notify_rx: Notify,
 
-    /// Notifies any task listening for `Receiver` dropped events
+    /// Notifies any task listening for `Receiver` dropped events.
     notify_tx: Notify,
 }
 
 pub mod error {
-    //! Watch error types
+    //! Watch error types.
 
     use std::fmt;
 
@@ -317,7 +318,7 @@ impl<T> Receiver<T> {
         Ref { inner }
     }
 
-    /// Wait for a change notification, then mark the newest value as seen.
+    /// Waits for a change notification, then marks the newest value as seen.
     ///
     /// If the newest value in the channel has not yet been marked seen when
     /// this method is called, the method marks that value seen and returns
@@ -432,10 +433,31 @@ impl<T> Sender<T> {
             return Err(error::SendError(value));
         }
 
-        {
+        self.send_replace(value);
+        Ok(())
+    }
+
+    /// Sends a new value via the channel, notifying all receivers and returning
+    /// the previous value in the channel.
+    ///
+    /// This can be useful for reusing the buffers inside a watched value.
+    /// Additionally, this method permits sending values even when there are no
+    /// receivers.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use tokio::sync::watch;
+    ///
+    /// let (tx, _rx) = watch::channel(1);
+    /// assert_eq!(tx.send_replace(2), 1);
+    /// assert_eq!(tx.send_replace(3), 2);
+    /// ```
+    pub fn send_replace(&self, value: T) -> T {
+        let old = {
             // Acquire the write lock and update the value.
             let mut lock = self.shared.value.write().unwrap();
-            *lock = value;
+            let old = mem::replace(&mut *lock, value);
 
             self.shared.state.increment_version();
 
@@ -445,12 +467,14 @@ impl<T> Sender<T> {
             // that receivers are able to figure out the version number of the
             // value they are currently looking at.
             drop(lock);
-        }
+
+            old
+        };
 
         // Notify all watchers
         self.shared.notify_rx.notify_waiters();
 
-        Ok(())
+        old
     }
 
     /// Returns a reference to the most recently sent value
@@ -595,7 +619,7 @@ impl<T> Sender<T> {
         Receiver::from_shared(version, shared)
     }
 
-    /// Returns the number of receivers that currently exist
+    /// Returns the number of receivers that currently exist.
     ///
     /// # Examples
     ///
