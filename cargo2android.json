@@ -1,12 +1,13 @@
 {
-    "add-toplevel-block": "cargo2android_tests.bp",
-    "apex-available": [
-      "//apex_available:platform",
-      "com.android.resolv",
-      "com.android.uwb"
-    ],
-    "min_sdk_version": "29",
-    "features": "io-util,macros,rt-multi-thread,sync,net,fs,time",
-    "device": true,
-    "run": true
+  "add-toplevel-block": "cargo2android_tests.bp",
+  "apex-available": [
+    "//apex_available:platform",
+    "com.android.bluetooth",
+    "com.android.resolv",
+    "com.android.uwb"
+  ],
+  "device": true,
+  "features": "io-util,macros,rt-multi-thread,sync,net,fs,time",
+  "min-sdk-version": "29",
+  "run": true
 }
