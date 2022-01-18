@@ -59,6 +59,7 @@ rust_library {
         "com.android.resolv",
         "com.android.uwb",
     ],
+    vendor_available: true,
     min_sdk_version: "29",
 }
 
