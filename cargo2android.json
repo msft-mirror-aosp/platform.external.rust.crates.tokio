@@ -2,7 +2,7 @@
   "add-toplevel-block": "cargo2android_tests.bp",
   "apex-available": [
     "//apex_available:platform",
-    "com.android.bluetooth",
+    "com.android.btservices",
     "com.android.resolv",
     "com.android.uwb"
   ],
