@@ -452,6 +452,7 @@ rust_test {
     host_supported: true,
     srcs: ["tests/rt_common.rs"],
     test_options: {
+        tags: ["no-remote"],
         unit_test: true,
     },
 }
@@ -642,6 +643,7 @@ rust_test {
     host_supported: true,
     srcs: ["tests/tcp_connect.rs"],
     test_options: {
+        tags: ["no-remote"],
         unit_test: true,
     },
 }
@@ -702,6 +704,7 @@ rust_test {
     host_supported: true,
     srcs: ["tests/tcp_socket.rs"],
     test_options: {
+        tags: ["no-remote"],
         unit_test: true,
     },
 }
