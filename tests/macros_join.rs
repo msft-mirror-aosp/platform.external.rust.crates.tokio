@@ -66,6 +66,7 @@ async fn two_await() {
 
 #[test]
 #[cfg(target_pointer_width = "64")]
+#[ignore = "Android: ignore until the compiler is updated. aliceryhl@ says these tests assume latest stable compiler."]
 fn join_size() {
     use futures::future;
     use std::mem;
