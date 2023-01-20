@@ -133,9 +133,6 @@
       "name": "tokio_test_tests_sync_errors"
     },
     {
-      "name": "tokio_test_tests_sync_mpsc"
-    },
-    {
       "name": "tokio_test_tests_sync_mutex"
     },
     {
