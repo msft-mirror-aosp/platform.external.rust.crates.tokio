@@ -11,13 +11,13 @@ third_party {
   }
   url {
     type: ARCHIVE
-    value: "https://static.crates.io/crates/tokio/tokio-1.23.0.crate"
+    value: "https://static.crates.io/crates/tokio/tokio-1.25.0.crate"
   }
-  version: "1.23.0"
+  version: "1.25.0"
   license_type: NOTICE
   last_upgrade_date {
-    year: 2022
-    month: 12
-    day: 12
+    year: 2023
+    month: 2
+    day: 6
   }
 }
