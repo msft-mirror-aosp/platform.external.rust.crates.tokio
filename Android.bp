@@ -18,12 +18,11 @@ license {
     ],
 }
 
-rust_library {
-    name: "libtokio",
+rust_defaults {
+    name: "tokio_defaults",
     host_supported: true,
-    crate_name: "tokio",
     cargo_env_compat: true,
-    cargo_pkg_version: "1.23.0",
+    cargo_pkg_version: "1.25.0",
     srcs: ["src/lib.rs"],
     edition: "2018",
     features: [
@@ -60,8 +59,24 @@ rust_library {
         "com.android.resolv",
         "com.android.uwb",
     ],
+    product_available: true,
     vendor_available: true,
     min_sdk_version: "29",
+}
+
+rust_library {
+    name: "libtokio",
+    crate_name: "tokio",
+    defaults: ["tokio_defaults"],
+}
+
+rust_library {
+    name: "libtokio_for_test",
+    crate_name: "tokio",
+    defaults: ["tokio_defaults"],
+    features: [
+        "test-util",
+    ],
 }
 
 rust_defaults {
