@@ -1,5 +1,5 @@
 #![warn(rust_2018_idioms)]
-#![cfg(all(feature = "full", not(tokio_wasi)))] // Wasi doesn't support threads
+#![cfg(all(feature = "full", not(target_os = "wasi")))] // Wasi doesn't support threads
 
 use tokio::{runtime, task, time};
 use tokio_test::assert_ok;
@@ -114,7 +114,7 @@ fn can_enter_current_thread_rt_from_within_block_in_place() {
 }
 
 #[test]
-#[cfg(not(target_os = "android"))]
+#[cfg(panic = "unwind")]
 fn useful_panic_message_when_dropping_rt_in_rt() {
     use std::panic::{catch_unwind, AssertUnwindSafe};
 
