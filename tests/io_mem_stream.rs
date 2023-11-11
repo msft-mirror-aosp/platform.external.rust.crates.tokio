@@ -63,7 +63,6 @@ async fn disconnect() {
 }
 
 #[tokio::test]
-#[cfg(not(target_os = "android"))]
 async fn disconnect_reader() {
     let (a, mut b) = duplex(2);
 
