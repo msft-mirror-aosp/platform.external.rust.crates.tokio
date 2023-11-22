@@ -4,7 +4,7 @@ rust_defaults {
     cargo_env_compat: true,
     test_suites: ["general-tests"],
     auto_gen_config: true,
-    edition: "2018",
+    edition: "2021",
     features: [
         "bytes",
         "fs",
