@@ -2,6 +2,7 @@
 // Do not modify this file as changes will be overridden on upgrade.
 
 package {
+    default_team: "trendy_team_android_rust",
     default_applicable_licenses: ["external_rust_crates_tokio_license"],
 }
 
