@@ -1,42 +1,24 @@
 diff --git a/Cargo.toml b/Cargo.toml
-index 6728a901..5291a632 100644
+index 61e58ce..5291a63 100644
 --- a/Cargo.toml
 +++ b/Cargo.toml
-@@ -208,7 +208,7 @@ optional = true
- version = "0.2.149"
+@@ -205,10 +205,10 @@ version = "1.1.1"
+ optional = true
+ 
+ [target."cfg(unix)".dev-dependencies.libc]
+-version = "0.2.145"
++version = "0.2.149"
  
  [target."cfg(unix)".dev-dependencies.nix]
--version = "0.27.1"
+-version = "0.26"
 +version = "0.28.0"
  features = [
      "fs",
      "socket",
-diff --git a/Cargo.toml.orig b/Cargo.toml.orig
-index 069bb130..91fc4261 100644
---- a/Cargo.toml.orig
-+++ b/Cargo.toml.orig
-@@ -123,7 +123,7 @@ signal-hook-registry = { version = "1.1.1", optional = true }
- 
- [target.'cfg(unix)'.dev-dependencies]
- libc = { version = "0.2.149" }
--nix = { version = "0.27.1", default-features = false, features = ["fs", "socket"] }
-+nix = { version = "0.28.0", default-features = false, features = ["fs", "socket"] }
- 
- [target.'cfg(windows)'.dependencies.windows-sys]
- version = "0.48"
 diff --git a/tests/io_async_fd.rs b/tests/io_async_fd.rs
-index 49b5a683..aca25462 100644
+index 7abd592..aca2546 100644
 --- a/tests/io_async_fd.rs
 +++ b/tests/io_async_fd.rs
-@@ -1,7 +1,7 @@
- #![warn(rust_2018_idioms)]
- #![cfg(all(unix, feature = "full"))]
- 
--use std::os::unix::io::{AsRawFd, IntoRawFd, RawFd};
-+use std::os::unix::io::{AsRawFd, RawFd};
- use std::sync::{
-     atomic::{AtomicBool, Ordering},
-     Arc,
 @@ -13,7 +13,7 @@ use std::{
      task::{Context, Waker},
  };
@@ -90,19 +72,9 @@ index 49b5a683..aca25462 100644
  fn set_nonblocking(fd: RawFd) {
      use nix::fcntl::{OFlag, F_GETFL, F_SETFL};
  
-@@ -132,17 +126,10 @@ fn socketpair() -> (FileDescriptor, FileDescriptor) {
-         SockFlag::empty(),
-     )
+@@ -134,8 +128,8 @@ fn socketpair() -> (FileDescriptor, FileDescriptor) {
      .expect("socketpair");
--    let fds = (
--        FileDescriptor {
--            fd: fd_a.into_raw_fd(),
--        },
--        FileDescriptor {
--            fd: fd_b.into_raw_fd(),
--        },
--    );
-+    let fds = (FileDescriptor { fd: fd_a }, FileDescriptor { fd: fd_b });
+     let fds = (FileDescriptor { fd: fd_a }, FileDescriptor { fd: fd_b });
  
 -    set_nonblocking(fds.0.fd);
 -    set_nonblocking(fds.1.fd);
